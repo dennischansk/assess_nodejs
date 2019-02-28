@@ -1,28 +1,39 @@
 
-import * as Promise from 'bluebird';
-import * as fs from "fs";
+//import {FileData} from "./class_filedata";
+let Promise = require('bluebird');
+let fs = require("fs");
 
 export class FileRW {
 
-    private filename = "server_data.json"
-    private writeFilePromise = Promise.promisify(require("fs").writeFile);
+    filename = "server_data.json";
+    writeFilePromise = Promise.promisify(require("fs").writeFile);
 
     constructor() { }
 
     // note: synchronous file-reading, should be in a promise!
     public read_file(): string {
-        var data: string
+        let data: string;
         try {
             data = fs.readFileSync(this.filename, 'utf8');
-            console.log("read_file: success")
+            console.log("read_file: success");
             console.log(data);
         } catch(e) {
             console.log('read_file: error loading file, return blank array');
-            data = '[]'
+            data = '[]';
         }
-        return data
+        return data;
     }
 
+    // note: basically wrap the sync read-file in a promise
+    //       store the data in an obj that can be returned
+    // todo: change 'any' to 'typeof FileData' and create the declaration file class_filedata.d.ts
+    public read_file_async(fileobj: any): void {
+        new Promise(function (resolve, reject) {
+            fileobj.content = fs.readFileSync(this.filename, 'utf8');
+            fileobj.filename = this.filename;
+            resolve(fileobj);
+        });
+    }
 
     // note: promisify this later!
     public write_file(data: string): void {

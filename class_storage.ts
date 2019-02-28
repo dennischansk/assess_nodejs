@@ -3,9 +3,14 @@
 // manipulates class_item objects (get, add, del)
 // after each manipulation, save the data, as needed
 //
+// note that this code manipulates objects from Item class
+// it is probably simpler to just use json objects which can
+// be easily serialize/deserialize from a text file.
+//
 
-import * as NewItem from "./class_item";
-import * as FileIO from "./class_filerw";
+let NewItem = require("./class_item");
+let FileIO = require("./class_filerw");
+let Promise = require('bluebird');
 
 /*
 interface ItemInterface {
@@ -14,12 +19,13 @@ interface ItemInterface {
 }
 */
 
-let fileio: FileIO.FileRW = new FileIO.FileRW();
+let fileio: typeof FileIO = new FileIO.FileRW();
 
 export class Storage {
 
-    private store: NewItem.Item[] = undefined;
+    private store: typeof NewItem[] = undefined;
     private id: number = undefined;
+
 
     constructor() {
         this.store = [];
@@ -31,19 +37,40 @@ export class Storage {
         //this.store = JSON.parse(fileio.read_file()) as NewItem.Item[]; //does not work
         const store_json = JSON.parse(fileio.read_file()); // as ItemInterface[];
         for (const obj of store_json) {
-            let item: NewItem.Item = new NewItem.Item(obj.id, obj.phrase);
+            let item: typeof NewItem = new NewItem.Item(obj.id, obj.phrase);
             if (this.id < item.get_id()) {
                 this.id = item.get_id();
             }
             this.store.push(item);
         }
-
         console.log("storage: constructor: success")
+    }
+
+    // use this in the case where constructor is simply just initializing empty data
+    // it returns a promise that does the file reading and deserialization
+    // it is possible that add/del items gets called before this code completes
+    // which means that some kind of flag is needed that can indicate when its ready
+    //
+    public init(): typeof Promise {
+        return new Promise( function(resolve, reject) {
+            const store_json = JSON.parse(fileio.read_file()); // as ItemInterface[];
+            // here is the complicated part where the deserialize json is used
+            // to create new Item objects to be stored in an array
+            for (const obj of store_json) {
+                let item: typeof NewItem = new NewItem.Item(obj.id, obj.phrase);
+                if (this.id < item.get_id()) {
+                    this.id = item.get_id();
+                }
+                this.store.push(item);
+            }
+            console.log("storage: init: success")
+            resolve(); //all done
+        });
     }
 
     public add_item(phrase: string): number {
         this.id = this.id + 1;
-        let item: NewItem.Item = new NewItem.Item(this.id, phrase);
+        let item: typeof NewItem = new NewItem.Item(this.id, phrase);
         this.store.push(item);
         console.log("storage: add_item: "+phrase);
 

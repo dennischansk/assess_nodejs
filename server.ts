@@ -6,9 +6,11 @@
 
 import * as PreparedServer from "./class_server";
 import * as PhraseStorage from "./class_storage";
+import * as PhraseStorageDB from "./class_storagedb";
 
 let server: PreparedServer.Server = new PreparedServer.Server(8080);
-let store: PhraseStorage.Storage = new PhraseStorage.Storage();
+//let store: PhraseStorage.Storage = new PhraseStorage.Storage();
+let store: PhraseStorageDB.StorageDB = new PhraseStorageDB.StorageDB();
 
 function func_hello_world(req, res): void {
   console.log("hapi hello world");
@@ -26,7 +28,7 @@ function func_write(req, res): void {
   var id: number = undefined;
   if (req.payload && req.payload.hasOwnProperty('phrase')) {
     phrase = req.payload.phrase;
-    id = store.add_item(phrase);
+    store.add_item(phrase); //WAS id = store.add_item(phrase);
   }
   res(JSON.stringify({"id":id}));
 }
@@ -37,7 +39,7 @@ function func_delete(req, res): void {
     var id: number = undefined;
     if (req.payload && req.payload.hasOwnProperty('id')) {
         id = req.payload.id;
-        phrase = store.del_item(id);
+        store.del_item(id); //WAS phrase = store.del_item(id);
     }
     res(JSON.stringify({"phrase":phrase}));
 }
