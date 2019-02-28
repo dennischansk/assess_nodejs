@@ -1,0 +1,25 @@
+{
+  "name": "assess_nodejs_hapijs",
+  "version": "1.0.0",
+  "description": "for engineering assessment of nodejs and hapijs skills",
+  "main": "startServer",
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "fs": "0.0.1-security",
+    "hapi": "^16.7.0",
+    "typescript": "^3.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^11.9.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run startServer",
+    "build": "npm run build-ts",
+    "build-ts": "tsc server && tsc class_item && tsc class_storage && tsc class_server",
+    "install": "npm run build-ts",
+    "startServer": "node server"
+  },
+  "author": "dennis chan",
+  "license": "ISC"
+}
